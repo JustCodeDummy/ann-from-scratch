@@ -11,13 +11,7 @@ int main() {
 	ann.addLayer(new DenseLayer(4, ReLU, 0.01));
 	ann.addLayer(new DenseLayer(1, Sigmoid, 0.0));
 
-
-	ann.set(); // Fit data
-
-	ann.compile(); // Create connections and initialize everything
-
-
-
+	ann.compile();
 	return 0;
 
 }

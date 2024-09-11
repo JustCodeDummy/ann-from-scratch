@@ -13,15 +13,24 @@ void NeuralNetwork::compile() {
 
 	LayerIterator iterator(this->layers);
 	Layer* curr = iterator.getNext();
+
 	while (iterator.hasNext()){
-		curr->connectNext(iterator.getNext());
+		Layer* next = iterator.getNext();
+		curr->connectNext(next);
+		curr = next;
 	}
 
-
+	for (auto & layer : this->layers){
+		for (auto & n : layer->neurons){
+			for (int _ = 0; _<layer->neurons.size(); _++){
+				n.weights.push_back(NeuralNetwork::xavier_uniform(n.inputs.size(), layer->neurons.size()));
+			}
+		}
+	}
 }
 
 
-double NeuralNetwork::xavier_uniform(int n_in, int n_out) {
+double NeuralNetwork::xavier_uniform(long n_in, long n_out) {
 	double limit = std::sqrt( 6.0 / (n_in + n_out));
 	std::vector<double> vec;
 	std::random_device rd;

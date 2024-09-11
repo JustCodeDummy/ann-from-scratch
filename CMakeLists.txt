@@ -12,4 +12,7 @@ add_executable(NeuralNetwork main.cpp
         Layer.cpp
         Layer.h
         NeuralNetwork.cpp
-        NeuralNetwork.h)
+        NeuralNetwork.h
+        LearningAlgorithms.cpp
+        LearningAlgorithms.h
+        LearningAlgorithms.h)

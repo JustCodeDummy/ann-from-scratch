@@ -12,7 +12,7 @@ DenseLayer::DenseLayer(int units, const std::function<double(double)>& activatio
 	}
 }
 
-void DenseLayer::connectNext(Layer *nextLayer) {
+void Layer::connectNext(Layer *nextLayer) {
 	for (auto n: this->neurons){
 		for (auto & nn : nextLayer->neurons) {
 			nn.inputs.push_back(&n);

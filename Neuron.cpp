@@ -11,11 +11,3 @@ Neuron::Neuron(std::function<double(double)> activation, double bias, NeuronType
 }
 
 
-ArrayList<Layer> layers = new ArrayList<>();
-layers.push(new denseLayer(some_params))
-layers.push(new denseLayer(some_params))
-layers.push(new denseLayer(some_params))
-
-while (layers.has_next){
-	layer.connectNext(layers.getNext());
-}

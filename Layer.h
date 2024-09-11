@@ -14,7 +14,7 @@ enum PaddingType {
  class Layer {
 	public:
 		std::vector<Neuron> neurons;
-		virtual void connectNext(Layer* nextLayer) = 0;
+		void connectNext(Layer* nextLayer);
 		virtual ~Layer() = default;
 
  };
@@ -31,7 +31,7 @@ class DenseLayer : public Layer {
 
 	public:
 		explicit DenseLayer(int units, const std::function<double(double)>& activation, double bias);
-		void connectNext(Layer* nextLayer) override;
+
 
 };
 

@@ -3,10 +3,16 @@
 #include "Layer.h"
 #include <vector>
 
+// TODO implement different algorithms and add them to this enum
+enum LearningAlgorithm {
+	BACK_PROPAGATION,
+};
+
+
 class NeuralNetwork{
 	private:
 		std::vector<Layer*> layers;
-		double xavier_uniform(int n_in, int n_out);
+		static double xavier_uniform(long n_in, long n_out);
 
 		class LayerIterator {
 			public:
@@ -37,6 +43,6 @@ class NeuralNetwork{
 
 		void set();
 
-		void train();
+		void train(LearningAlgorithm algorithm);
 
 };
