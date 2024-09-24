@@ -12,6 +12,7 @@ int main() {
 	ann.addLayer(new DenseLayer(1, Sigmoid, 0.0));
 
 	ann.compile();
+
 	return 0;
 
 }

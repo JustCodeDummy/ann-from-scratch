@@ -4,11 +4,9 @@
 
 #include "Layer.h"
 
-
-
-DenseLayer::DenseLayer(int units, const std::function<double(double)>& activation, double bias) {
+DenseLayer::DenseLayer(int units, ActivationFunction activation, double bias) {
 	for (int i = 0; i<units; i++){
-		this->neurons.emplace_back( activation, bias, HIDDEN);
+		this->neurons.emplace_back( activation, bias);
 	}
 }
 
@@ -20,17 +18,8 @@ void Layer::connectNext(Layer *nextLayer) {
 	}
 }
 
-InputLayer::InputLayer(int units, const std::function<double(double)>& activation, double bias) {
-	for (int i = 0; i<units; i++){
-		this->neurons.emplace_back(activation, bias, INPUT);
-	}
-}
 
-OutputLayer::OutputLayer(int units, const std::function<double(double)> &activation, double bias) {
-	for (int i = 0; i<units; i++){
-		this->neurons.emplace_back(activation, bias, HIDDEN);
-	}
-}
+
 
 
 

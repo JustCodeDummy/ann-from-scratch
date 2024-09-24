@@ -2,12 +2,9 @@
 
 #include <utility>
 
-
-Neuron::Neuron(std::function<double(double)> activation, double bias, NeuronType type) {
+Neuron::Neuron(ActivationFunction function, double bias) {
 	this->bias = bias;
-	this->activation = std::move(activation);
-	this->type = type;
-
+	this->activation = function;
 }
 
 

@@ -3,10 +3,13 @@
 #include <iostream>
 #include <functional>
 
-enum NeuronType {
-	INPUT,
-	OUTPUT,
-	HIDDEN
+
+enum ActivationFunction {
+	SIGMOID,
+	BINARY,
+	RELU,
+	LINEAR,
+	TANH
 };
 
 class Neuron{
@@ -14,11 +17,11 @@ class Neuron{
 
 
 	public:
-		std::function<double(double)> activation;
+		ActivationFunction activation;
 		std::vector<double> weights;
 		std::vector<Neuron*> inputs;
 		double bias, output, gradient;
-		NeuronType type;
-		explicit Neuron(std::function<double(double)> activation, double bias, NeuronType type);
+
+		explicit Neuron(ActivationFunction function, double bias);
 
 };

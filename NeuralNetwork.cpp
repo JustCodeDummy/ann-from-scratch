@@ -8,6 +8,7 @@ void NeuralNetwork::addLayer(Layer* layer) {
 void NeuralNetwork::info() {
 	// TODO display info
 }
+
 // initialize weights
 void NeuralNetwork::compile() {
 
@@ -38,3 +39,29 @@ double NeuralNetwork::xavier_uniform(long n_in, long n_out) {
 	std::uniform_real_distribution<> dis(-limit, limit);
 	return dis(gen);
 }
+
+void NeuralNetwork::train(LearningAlgorithm algorithm) {
+
+	LayerIterator iterator(this->layers);
+	// Calculate new outputs
+	while (iterator.hasNext()){
+		Layer* layer = iterator.getNext();
+		for (auto n : layer-> neurons){
+			double sum = 0.0;
+			for (int i = 0; i<n.weights.size(); i++){
+				sum += n.inputs[i]->output * n.weights[i];
+			}
+			n.output = n.activation(sum + n.bias);
+
+
+		}
+	}
+
+	
+	
+	// TODO switch for algorithms
+
+
+}
+
+
