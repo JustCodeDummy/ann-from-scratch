@@ -73,7 +73,7 @@ double evaluate(const double x, ActivationFunction condition){
 	}
 }
 
-double outputGradient(ActivationFunction condition, double x, double d){
+double outputGradient(ActivationFunction condition, double x, double d, LossFunction loss){
 	 // Currently only MSE error is implemented
 	 // X is value, D is expected value
 
@@ -81,10 +81,12 @@ double outputGradient(ActivationFunction condition, double x, double d){
 	switch (condition) {
 		case SIGMOID:
 			 o = Sigmoid(x);
-			// o * (1-o) is sigmoid derivative, (d - o) is MSE derivative
-			return o * (1-o) * (d - o);
-		case BINARY:
-			break;
+			double los;
+				los = (d - o);
+			return o * (1 - o) * los;
+
+			case BINARY:
+				break;
 		case RELU:
 			break;
 		case LINEAR:
@@ -92,6 +94,22 @@ double outputGradient(ActivationFunction condition, double x, double d){
 		case TANH:
 			break;
 	}
+}
+
+
+
+
+double softmax(std::vector<Neuron> values, double x){
+
+	double d = 0;
+
+	for (auto n: values){
+		d+=std::exp(n.output);
+	}
+
+	return std::exp(x) / d;
+
+
 }
 
 
@@ -121,12 +139,29 @@ void NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std
 
 		while (iterator.hasNext()){
 			layer = iterator.getNext();
-			for (auto n : layer-> neurons){
-				double sum = 0.0;
-				for (int i = 0; i<n.weights.size(); i++){
-					sum += n.inputs[i]->output * n.weights[i];
+
+				for (auto n : layer-> neurons){
+					double sum = 0.0;
+					for (int i = 0; i<n.weights.size(); i++){
+						sum += n.inputs[i]->output * n.weights[i];
+					}
+					if (n.activation != SOFTMAX){
+						n.output = evaluate(sum, n.activation);
+					}
+					else {
+						n.output = sum;
+					}
 				}
-				n.output = evaluate(sum, n.activation);
+
+			if(layer->neurons[0].activation == SOFTMAX) {
+				double d = 0;
+				for (const auto& n: layer->neurons){
+					d+=std::exp(n.output);
+				}
+
+				for (auto& n: layer->neurons){
+					n.output = std::exp(n.output) / d;
+				}
 			}
 		}
 
@@ -138,7 +173,11 @@ void NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std
 
 				for (int i = 0; i<this->layers[s]->neurons.size(); i++){
 					Neuron n = this->layers[s]->neurons[i];
-					n.gradient = outputGradient(n.activation, n.output, expected[sampleSize][i]);
+					if (n.activation != SOFTMAX) {
+						n.gradient = outputGradient(n.activation, n.output, expected[sampleSize][i], CROSS_ENTROPY_MULTICLASS);
+					}else {
+						n.gradient = n.output - expected[sampleSize][i];
+					}
 				}
 			}
 			else { // if hidden layers
@@ -164,8 +203,8 @@ void NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std
 		while (s>1) {
 			for (auto n: this->layers[s]->neurons){
 				for (int i=0; i<n.weights.size(); i++){
-					double change = this->learningRate * n.gradient * n.inputs[i]->output;
-					n.weights[i] += change;
+					n.weights[i] += this->learningRate * (n.gradient * n.inputs[i]->output + n.weights[i] * this->l2);
+
 				}
 			}
 			s--;

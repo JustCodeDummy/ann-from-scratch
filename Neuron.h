@@ -9,7 +9,8 @@ enum ActivationFunction {
 	BINARY,
 	RELU,
 	LINEAR,
-	TANH
+	TANH,
+	SOFTMAX
 };
 
 class Neuron{

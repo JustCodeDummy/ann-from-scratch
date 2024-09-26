@@ -8,6 +8,11 @@ enum LearningAlgorithm {
 	BACK_PROPAGATION,
 };
 
+enum LossFunction{
+	MSE,
+	CROSS_ENTROPY_MULTICLASS,
+	CROSS_ENTROPY_BINARY
+};
 
 class NeuralNetwork{
 	private:
@@ -34,6 +39,8 @@ class NeuralNetwork{
 
 	public:
 		NeuralNetwork() = default;
+
+		double l2 = 0.01;
 
 		double learningRate = 0.1;
 
