@@ -24,4 +24,7 @@ class Neuron{
 
 		explicit Neuron(ActivationFunction function, double bias);
 
+
+		bool operator==(const Neuron& other) const;
+
 };

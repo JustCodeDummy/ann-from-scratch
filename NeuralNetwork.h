@@ -16,9 +16,9 @@ class NeuralNetwork{
 
 		class LayerIterator {
 			public:
-				LayerIterator(std::vector<Layer*>& layers) : layers_(layers), index_(0) {}
+				explicit LayerIterator(std::vector<Layer*>& layers) : layers_(layers), index_(0) {}
 
-				bool hasNext() const {
+				[[nodiscard]] bool hasNext() const {
 					return index_ < layers_.size() - 1;  // Stops before the last layer
 				}
 
@@ -35,14 +35,14 @@ class NeuralNetwork{
 	public:
 		NeuralNetwork() = default;
 
+		double learningRate = 0.1;
+
 		void addLayer(Layer* layer);
 
 		void info();
 
 		void compile();
 
-		void set();
-
-		void train(LearningAlgorithm algorithm);
+		void train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected);
 
 };
