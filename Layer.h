@@ -13,6 +13,8 @@ class Layer {
 		void connectNext(Layer* nextLayer);
 		virtual ~Layer() = default;
 		ActivationFunction function;
+		int id_
+		=0;
  };
 
 

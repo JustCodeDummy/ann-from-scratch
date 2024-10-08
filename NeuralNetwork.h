@@ -8,6 +8,12 @@ enum LearningAlgorithm {
 	BACK_PROPAGATION,
 };
 
+enum Errors{
+	OK=0,
+	NOT_COMPILED = -1,
+	MISCONFIGURATION = -2
+};
+
 enum LossFunction{
 	MSE,
 	CROSS_ENTROPY_MULTICLASS,
@@ -18,7 +24,7 @@ class NeuralNetwork{
 	private:
 		std::vector<Layer*> layers;
 		static double xavier_uniform(long n_in, long n_out);
-
+		bool isCompiled = false;
 		class LayerIterator {
 			public:
 				explicit LayerIterator(std::vector<Layer*>& layers) : layers_(layers), index_(0) {}
@@ -41,7 +47,7 @@ class NeuralNetwork{
 		NeuralNetwork() = default;
 
 		double l2 = 0.01;
-
+ 		// TODO Dynamic learning rate, DROPOUT regularization
 		double learningRate = 0.1;
 
 		void addLayer(Layer* layer);
@@ -50,6 +56,6 @@ class NeuralNetwork{
 
 		void compile();
 
-		void train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected);
+		Errors train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected);
 
 };

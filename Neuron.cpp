@@ -2,9 +2,10 @@
 
 #include <utility>
 
-Neuron::Neuron(ActivationFunction function, double bias) {
+Neuron::Neuron(ActivationFunction function, double bias, int id) {
 	this->bias = bias;
 	this->activation = function;
+	this->id_ = id;
 }
 
 bool Neuron::operator==(const Neuron &other) const {

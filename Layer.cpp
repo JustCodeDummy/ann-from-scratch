@@ -6,14 +6,14 @@
 
 DenseLayer::DenseLayer(int units, ActivationFunction activation, double bias) {
 	for (int i = 0; i<units; i++){
-		this->neurons.emplace_back( activation, bias);
+		this->neurons.emplace_back(activation, bias, i+1);
 	}
 }
 
 void Layer::connectNext(Layer *nextLayer) {
-	for (auto n: this->neurons){
-		for (auto & nn : nextLayer->neurons) {
-			nn.inputs.push_back(&n);
+	for (auto &input: this->neurons){
+		for (auto &neuron : nextLayer->neurons) {
+			neuron.inputs.push_back(&input);
 		}
 	}
 }

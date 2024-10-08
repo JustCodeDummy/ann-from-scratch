@@ -22,8 +22,8 @@ class Neuron{
 		std::vector<double> weights;
 		std::vector<Neuron*> inputs;
 		double bias, output, gradient;
-
-		explicit Neuron(ActivationFunction function, double bias);
+		int id_ = 0;
+		explicit Neuron(ActivationFunction function, double bias, int id);
 
 
 		bool operator==(const Neuron& other) const;

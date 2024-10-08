@@ -1,33 +1,61 @@
 #include "NeuralNetwork.h"
 #include <cmath>
 #include <random>
+#include <iostream>
+#include <fstream>
+
+
 void NeuralNetwork::addLayer(Layer* layer) {
 	this->layers.push_back(layer);
 }
 
 void NeuralNetwork::info() {
-	// TODO display info
+	int c=0;
+	for (auto layer : this->layers){
+		c++;
+		std:: cout << "Properties of layer " << c << std::endl;
+		int d=0;
+		for (const auto& n : layer->neurons){
+			d++;
+			std::string w_string;
+
+			w_string += "[";
+			for (auto i : n.weights){
+				w_string += std::to_string(i);
+				w_string += ", ";
+			}
+			w_string += "]";
+
+			std::cout << "\tNeuron (" << d << "): {" << std::endl;
+			std::cout << "\t\toutput: " << n.output << std::endl;
+			std::cout << "\t\tWeights: " << w_string << std::endl;
+			std::cout << "\t\tinputs size: " << n.inputs.size() << std::endl;
+			std::cout << "\t\tgradient: " << n.gradient << std::endl;
+		}
+	}
 }
 
 // initialize weights
 void NeuralNetwork::compile() {
-
-	LayerIterator iterator(this->layers);
-	Layer* curr = iterator.getNext();
-
-	while (iterator.hasNext()){
-		Layer* next = iterator.getNext();
-		curr->connectNext(next);
-		curr = next;
+	if (this->isCompiled){
+		return;
 	}
 
+	for (int i=1; i<layers.size(); i++){
+		this->layers[i -1]->connectNext(this->layers[i]);
+	}
+	int lid = 1;
 	for (auto & layer : this->layers){
+		layer->id_ = lid;
+		lid++;
 		for (auto & n : layer->neurons){
-			for (int _ = 0; _<layer->neurons.size(); _++){
+			for (int _ = 0; _<layer->neurons[0].inputs.size(); _++){
 				n.weights.push_back(NeuralNetwork::xavier_uniform((long) n.inputs.size(), (long) layer->neurons.size()));
 			}
 		}
 	}
+
+	this->isCompiled = true;
 }
 double Sigmoid(double x){
 	return 1 / (1 + std::exp(-x));
@@ -73,119 +101,109 @@ double evaluate(const double x, ActivationFunction condition){
 	}
 }
 
-double outputGradient(ActivationFunction condition, double x, double d, LossFunction loss){
-	 // Currently only MSE error is implemented
-	 // X is value, D is expected value
+double outputGradient(ActivationFunction condition, double output, double expected, LossFunction loss){
 
 	double o;
 	switch (condition) {
 		case SIGMOID:
-			 o = Sigmoid(x);
+			 o = Sigmoid(output);
+			 std::cout << "Sigmoid(" << output << ") = " << o << std::endl;
 			double los;
-				los = (d - o);
+			los = (expected - o);
+			std::cout << o << " * (1 - " << o << ") * " << los << " = " << o * (1 - o) * los << std::endl;
 			return o * (1 - o) * los;
 
-			case BINARY:
-				break;
+		case BINARY:
 		case RELU:
-			break;
 		case LINEAR:
-			break;
 		case TANH:
-			break;
+			return output - expected;
+
 	}
 }
-
-
-
-
-double softmax(std::vector<Neuron> values, double x){
-
-	double d = 0;
-
-	for (auto n: values){
-		d+=std::exp(n.output);
-	}
-
-	return std::exp(x) / d;
-
-
-}
-
 
 int getWeightIndex(const std::vector<Neuron*>& pointerVec, Neuron* element) {
 	for (int i = 0; i < pointerVec.size(); ++i) {
-		if (pointerVec[i] == element) {  // Dereference pointer and compare with the element
+		if (pointerVec[i] == element) {
 			return i;
 		}
 	}
-	return -1;  // Return -1 if the element is not found
+	return -1;
 }
 
 
-void NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected) {
 
-	for (int sampleSize = 0; sampleSize<data.size(); sampleSize++)
-	{
-		// calculating outputs
+Errors NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected) {
+ 	// TODO ADAM
 
-		LayerIterator iterator(this->layers);
-		// Calculate new outputs
-		Layer* layer = iterator.getNext();
+	 if (!this->isCompiled){
+		 return MISCONFIGURATION;
+	 }
 
-		for (int j = 0; j<data[sampleSize].size(); j++){
-			layer->neurons[j].output = data[sampleSize][j];
+	for (int sampleSize = 0; sampleSize<data.size(); sampleSize++) {
+		// set input values
+		for (int j = 0; j < data[sampleSize].size(); j++) {
+			this->layers[0]->neurons[j].output = data[sampleSize][j];
 		}
 
-		while (iterator.hasNext()){
-			layer = iterator.getNext();
+		Layer *layer;
 
-				for (auto n : layer-> neurons){
-					double sum = 0.0;
-					for (int i = 0; i<n.weights.size(); i++){
-						sum += n.inputs[i]->output * n.weights[i];
-					}
-					if (n.activation != SOFTMAX){
-						n.output = evaluate(sum, n.activation);
-					}
-					else {
-						n.output = sum;
-					}
+		// calculating outputs
+		for (int lay = 1; lay< this->layers.size(); lay++) {
+			layer = this->layers[lay];
+			int n_count = 0;
+
+			for (auto &n: layer->neurons) {
+				double sum = 0.0;
+				n_count++;
+				for (int i = 0; i < n.inputs.size(); i++) {
+					double val = n.inputs[i]->output * n.weights[i];;
+					sum += val;
 				}
 
-			if(layer->neurons[0].activation == SOFTMAX) {
+				if (n.activation != SOFTMAX) {
+					double val = evaluate(sum, n.activation);;
+					n.output = val;
+				} else {
+					n.output = sum;
+				}
+			}
+
+			if (layer->neurons[0].activation == SOFTMAX) {
 				double d = 0;
-				for (const auto& n: layer->neurons){
-					d+=std::exp(n.output);
+				for (const auto &n: layer->neurons) {
+					d += std::exp(n.output);
 				}
 
-				for (auto& n: layer->neurons){
+				for (auto &n: layer->neurons) {
 					n.output = std::exp(n.output) / d;
 				}
 			}
 		}
 
 		// Calculating gradients
-
 		int s = (int) this->layers.size() - 1;
-		while (s>1){
+		while (s>0){
 			if (s == this->layers.size() - 1){ // If output layer
-
-				for (int i = 0; i<this->layers[s]->neurons.size(); i++){
-					Neuron n = this->layers[s]->neurons[i];
+				int i = 0;
+				std::cout << this->layers[s]->neurons.size() << std::endl;
+				for (auto &n : this->layers[s]->neurons){
 					if (n.activation != SOFTMAX) {
 						n.gradient = outputGradient(n.activation, n.output, expected[sampleSize][i], CROSS_ENTROPY_MULTICLASS);
 					}else {
 						n.gradient = n.output - expected[sampleSize][i];
 					}
+					i++;
 				}
 			}
 			else { // if hidden layers
+
 				for (auto& neuron : this->layers[s]->neurons){
 					double out = neuron.output;
 					double weightedGrad = 0.0;
 
-					for (auto next : this->layers[s+1]->neurons){
+
+					for (auto &next : this->layers[s+1]->neurons){
 						int idx = getWeightIndex(next.inputs , &neuron);
 						double weight = next.weights[idx];
 						weightedGrad += next.gradient * weight;
@@ -196,40 +214,33 @@ void NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std
 			s--;
 		}
 
+		info();
+
 		// updating weights
-
-
 		s = (int) this->layers.size() - 1;
-		while (s>1) {
-			for (auto n: this->layers[s]->neurons){
+		while (s>0) {
+			for (auto &n: this->layers[s]->neurons){
 				for (int i=0; i<n.weights.size(); i++){
 					n.weights[i] += this->learningRate * (n.gradient * n.inputs[i]->output + n.weights[i] * this->l2);
-
 				}
 			}
 			s--;
 		}
 
+		info();
+
 		// updating bias
 
 		s = (int) this->layers.size() - 1;
-		while (s>1) {
-			for (auto n: this->layers[s]->neurons){
+		while (s>0) {
+			for (auto &n: this->layers[s]->neurons){
 				n.bias += this->learningRate * n.bias;
 			}
 			s--;
 		}
-
-
 	}
 
-
-
-
-	
-	
-
-
+	return OK;
 }
 
 
