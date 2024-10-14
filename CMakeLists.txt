@@ -15,4 +15,5 @@ add_executable(NeuralNetwork main.cpp
         NeuralNetwork.h
         LearningAlgorithms.cpp
         LearningAlgorithms.h
-        LearningAlgorithms.h)
+        LearningAlgorithms.h
+)

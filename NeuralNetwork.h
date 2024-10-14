@@ -11,7 +11,12 @@ enum LearningAlgorithm {
 enum Errors{
 	OK=0,
 	NOT_COMPILED = -1,
-	MISCONFIGURATION = -2
+	MISCONFIGURATION = -2,
+	BIAS_FAILED = -3,
+	WEIGHTS_FAILED = -4,
+	BACK_PROPAGATE_FAILED = -5,
+	PROPAGATE_FAILED = -6,
+	BAD_DATA = -7
 };
 
 enum LossFunction{
@@ -41,6 +46,10 @@ class NeuralNetwork{
 				std::vector<Layer*>& layers_;
 				std::size_t index_;
 			};
+		Errors backpropagate(std::vector<double>& expected);
+		Errors updateWeights();
+		Errors updateBias();
+		Errors propagate(std::vector<double> data);
 
 
 	public:
