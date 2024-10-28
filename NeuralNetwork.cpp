@@ -2,7 +2,6 @@
 #include <cmath>
 #include <random>
 #include <iostream>
-#include <fstream>
 
 
 void NeuralNetwork::addLayer(Layer* layer) {
@@ -35,8 +34,6 @@ void NeuralNetwork::info() {
 	}
 }
 
-
-
 // initialize weights
 void NeuralNetwork::compile() {
 	if (this->isCompiled){
@@ -52,12 +49,14 @@ void NeuralNetwork::compile() {
 		for (auto & n : layer->neurons){
 			for (int _ = 0; _<layer->neurons[0].inputs.size(); _++){
 				n.weights.push_back(NeuralNetwork::xavier_uniform((long) n.inputs.size(), (long) layer->neurons.size()));
+				n.velocities.push_back(0.0);
 			}
 		}
 	}
 
 	this->isCompiled = true;
 }
+
 double Sigmoid(double x){
 	return 1 / (1 + std::exp(-x));
 }
@@ -217,8 +216,11 @@ Errors NeuralNetwork::backpropagate(std::vector<double>& expected) {
 					if (n.activation != SOFTMAX) {
 						n.gradient = outputGradient(n.activation, n.output, expected[i],
 													CROSS_ENTROPY_MULTICLASS);
+						n.pushGradient(n.gradient);
 					} else {
 						n.gradient = n.output - expected[i];
+						n.pushGradient(n.gradient);
+
 					}
 					i++;
 				}
@@ -233,11 +235,14 @@ Errors NeuralNetwork::backpropagate(std::vector<double>& expected) {
 						weightedGrad += next.gradient * weight;
 					}
 					neuron.gradient = out * (1 - out) * weightedGrad;
+					neuron.pushGradient(neuron.gradient);
 				}
 			}
 			s--;
 		}
-	} catch (std::exception& ex){return BACK_PROPAGATE_FAILED;}
+	} catch (std::exception& ex){
+		return BACK_PROPAGATE_FAILED;
+	}
 
 	return OK;
 }
@@ -247,9 +252,11 @@ Errors NeuralNetwork::updateWeights() {
 		int s = (int) this->layers.size() - 1;
 		try{
 			while (s > 0) {
-				for (auto &n: this->layers[s]->neurons) {
-					for (int i = 0; i < n.weights.size(); i++) {
-						n.weights[i] -= this->learningRate * (n.gradient * n.inputs[i]->output + n.weights[i] * this->l2);
+				for (auto &neuron: this->layers[s]->neurons) {
+					for (int i = 0; i < neuron.weights.size(); i++) {
+						double gradient = neuron.gradient * neuron.inputs[i]->output + neuron.weights[i] * this->l2;
+						neuron.velocities[i] = this->beta * neuron.velocities[i] + (1 - this->beta) * gradient;
+						neuron.weights[i] -= this->learningRate * neuron.velocities[i];
 					}
 				}
 				s--;
@@ -279,6 +286,48 @@ Errors NeuralNetwork::updateBias() {
 
 
 }
+
+int NeuralNetwork::predict(const std::vector<double>& sample) {
+
+	propagate(sample);
+
+	int index = -1;
+	double max = -1000;
+	std::vector<Neuron> outputs = layers[ layers.size()-1]->neurons;
+	for (int i=0; i<outputs.size(); i++){
+		if (outputs[i].output > max){
+			index = i;
+			max = outputs[i].output;
+		}
+	}
+
+
+	return index;
+}
+
+void NeuralNetwork::predict(const std::vector<std::vector<double>> &inputs,
+							 const std::vector<std::vector<double>> &outputs) {
+	int correctly = 0;
+	for (int i=0; i<inputs.size(); i++){
+		if (correct(outputs[i]) == predict(inputs[i])){
+			correctly += 1;
+		}
+	}
+
+	std::cout << "Neural network classified " << correctly << " samples correctly, which is " << (correctly /inputs.size()) << "%" << std::endl;
+
+}
+
+int NeuralNetwork::correct(const std::vector<double> &values) {
+		for (int i=0; i<values.size(); i++){
+			if (values[i] > 0.0){
+				return i;
+			}
+		}
+		return -1;
+
+}
+
 
 
 

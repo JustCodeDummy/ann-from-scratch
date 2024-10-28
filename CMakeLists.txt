@@ -16,4 +16,11 @@ add_executable(NeuralNetwork main.cpp
         LearningAlgorithms.cpp
         LearningAlgorithms.h
         LearningAlgorithms.h
+        parsing.cpp
+        parsing.h
+        NeuralNetworkBridge.cpp
+        NeuralNetworkBridge.cpp
 )
+
+include_directories("C:/Program Files/Java/jdk-21/include" "C:/Program Files/Java/jdk-21/include/win32")
+

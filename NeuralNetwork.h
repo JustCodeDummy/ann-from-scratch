@@ -30,22 +30,7 @@ class NeuralNetwork{
 		std::vector<Layer*> layers;
 		static double xavier_uniform(long n_in, long n_out);
 		bool isCompiled = false;
-		class LayerIterator {
-			public:
-				explicit LayerIterator(std::vector<Layer*>& layers) : layers_(layers), index_(0) {}
-
-				[[nodiscard]] bool hasNext() const {
-					return index_ < layers_.size() - 1;  // Stops before the last layer
-				}
-
-				Layer* getNext() {
-					return layers_[index_++];  // Return the current layer and increment the index
-				}
-
-			private:
-				std::vector<Layer*>& layers_;
-				std::size_t index_;
-			};
+		int correct(const std::vector<double> &sample);
 		Errors backpropagate(std::vector<double>& expected);
 		Errors updateWeights();
 		Errors updateBias();
@@ -54,6 +39,12 @@ class NeuralNetwork{
 
 	public:
 		NeuralNetwork() = default;
+
+		int predict(const std::vector<double>& sample);
+
+		void predict(const std::vector<std::vector<double>>& inputs, const std::vector<std::vector<double>>& outputs);
+
+		double beta = 0.9;
 
 		double l2 = 0.01;
  		// TODO Dynamic learning rate, DROPOUT regularization

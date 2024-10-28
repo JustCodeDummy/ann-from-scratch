@@ -4,19 +4,14 @@
 #include <vector>
 #include <functional>
 
-
-
-
 class Layer {
 	public:
 		std::vector<Neuron> neurons;
 		void connectNext(Layer* nextLayer);
 		virtual ~Layer() = default;
 		ActivationFunction function;
-		int id_
-		=0;
+		int id_=0;
  };
-
 
 class DenseLayer : public Layer {
 	public:
