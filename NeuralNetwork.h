@@ -25,11 +25,22 @@ enum LossFunction{
 	CROSS_ENTROPY_BINARY
 };
 
+
 class NeuralNetwork{
+	public:
+		double beta = 0.9;
+		bool isCompiled = false;
+
+		double l2 = 0.01;
+		// TODO Dynamic learning rate, DROPOUT regularization
+		double learningRate = 0.1;
+		double xavier_uniform(long n_in, long n_out);
+};
+
+
+class BaseNeuralNetwork: public NeuralNetwork{
 	private:
 		std::vector<Layer*> layers;
-		static double xavier_uniform(long n_in, long n_out);
-		bool isCompiled = false;
 		int correct(const std::vector<double> &sample);
 		Errors backpropagate(std::vector<double>& expected);
 		Errors updateWeights();
@@ -38,17 +49,11 @@ class NeuralNetwork{
 
 
 	public:
-		NeuralNetwork() = default;
+		BaseNeuralNetwork() = default;
 
 		int predict(const std::vector<double>& sample);
 
 		void predict(const std::vector<std::vector<double>>& inputs, const std::vector<std::vector<double>>& outputs);
-
-		double beta = 0.9;
-
-		double l2 = 0.01;
- 		// TODO Dynamic learning rate, DROPOUT regularization
-		double learningRate = 0.1;
 
 		void addLayer(Layer* layer);
 
@@ -57,5 +62,12 @@ class NeuralNetwork{
 		void compile();
 
 		Errors train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected);
+
+};
+
+class ConvolutionNeuralNetwork: public NeuralNetwork{
+	private:
+		std::vector<ConvolutionLayer*> layers;
+		bool isCompiled;
 
 };

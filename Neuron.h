@@ -13,24 +13,24 @@ enum ActivationFunction {
 	SOFTMAX
 };
 
-class Neuron{
+class Neuron {
 
 
-private:
 
 
 	public:
 		ActivationFunction activation;
 		std::vector<double> weights, previousGradients, velocities;
-		std::vector<Neuron*> inputs;
+		std::vector<Neuron *> inputs;
 		double bias, output, gradient;
 
 		int id_ = 0;
+
 		explicit Neuron(ActivationFunction function, double bias, int id);
 
-		void pushGradient(double gradient);
+		void pushGradient(double gradient_);
 
-		bool operator==(const Neuron& other) const;
+		bool operator==(const Neuron &other) const;
 
-
+		Neuron() : activation(SIGMOID), bias(0.0), id_(-1), output(0) {};
 };

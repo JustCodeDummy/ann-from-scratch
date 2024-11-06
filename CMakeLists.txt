@@ -3,10 +3,17 @@ project(NeuralNetwork)
 
 set(CMAKE_CXX_STANDARD 23)
 
+include_directories("C:/Program Files/Java/jdk-21/include" "C:/Program Files/Java/jdk-21/include/win32")
+
+find_package(OpenCV REQUIRED)
+message(STATUS "OpenCV library status:")
+message(STATUS "    config: ${OpenCV_DIR}")
+message(STATUS "    version: ${OpenCV_VERSION}")
+message(STATUS "    libraries: ${OpenCV_LIBS}")
+message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
+
 add_executable(NeuralNetwork main.cpp
         Neuron.cpp
-        Helpers.cpp
-        Helpers.h
         ActivationFunctions.h
         ActivationFunctions.cpp
         Layer.cpp
@@ -20,7 +27,7 @@ add_executable(NeuralNetwork main.cpp
         parsing.h
         NeuralNetworkBridge.cpp
         NeuralNetworkBridge.cpp
+
 )
 
-include_directories("C:/Program Files/Java/jdk-21/include" "C:/Program Files/Java/jdk-21/include/win32")
-
+target_link_libraries(NeuralNetwork ${OpenCV_LIBS})

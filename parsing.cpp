@@ -1,5 +1,6 @@
 
 #include "parsing.h"
+#include "opencv2/opencv.hpp"
 
 std::vector<std::string> split(const std::string& str, const std::string& delim){
 	std::vector<std::string> result;
@@ -18,18 +19,15 @@ std::vector<std::string> split(const std::string& str, const std::string& delim)
 std::vector<std::vector<double>> loadData(const std::string& filename){
 	std::ifstream file(filename);
 
-	// Check if the file was opened successfully
 	if (!file.is_open()) {
 		std::cerr << "Unable to open the file!" << std::endl;
 		std::cout << "Current path: " << std::filesystem::current_path() << std::endl;
 		exit(-1);
 	}
 
-	// Vector to store lines
 	std::vector<std::string> lines;
 	std::string line;
 
-	// Read the file line by line
 	while (std::getline(file, line)) {
 		lines.push_back(line);
 	}
@@ -68,27 +66,22 @@ void train_test_split(const std::vector<std::vector<double>>& X,
 					  std::vector<std::vector<double>>& y_train,
 					  std::vector<std::vector<double>>& y_test,
 					  double test_size = 0.2) {
-	// Ensure that X and y have the same size
 	if (X.size() != y.size()) {
 		std::cout << X.size() << " : " << y.size() << std::endl;
 		exit(-1);
 	}
 
-	// Create an index vector
 	std::vector<int> indices(X.size());
 	for (int i = 0; i < X.size(); ++i) {
 		indices[i] = i;
 	}
 
-	// Shuffle the indices
 	std::random_device rd;  // Obtain a random number from hardware
 	std::mt19937 g(rd());   // Seed the generator
 	std::shuffle(indices.begin(), indices.end(), g);
 
-	// Calculate the size of the test set
 	int test_set_size = static_cast<int>(X.size() * test_size);
 
-	// Split the data based on shuffled indices
 	for (int i = 0; i < indices.size(); ++i) {
 		if (i < X.size() - test_set_size) {
 			X_train.push_back(X[indices[i]]);
@@ -98,5 +91,28 @@ void train_test_split(const std::vector<std::vector<double>>& X,
 			y_test.push_back(y[indices[i]]);
 		}
 	}
+
+}
+
+void transformConv2dGrayScale(int height, int width, std::string& filepath, std::vector<std::vector<double>>& data){
+	cv::Mat image = cv::imread(filepath, cv::IMREAD_GRAYSCALE);
+
+	if (image.empty()){
+		std::cerr << "[-] Unable to load this image" << std::endl;
+		exit(-9);
+	}
+
+	cv::resize(image, image, cv::Size(width, height));
+
+	for (int i = 0; i<width; i++){
+		for (int j = 0; j<height; j++){
+			data[i][j] = static_cast<double>(image.at<uchar>(i,j)) / 255.00;
+		}
+	}
+
+
+
+
+
 
 }

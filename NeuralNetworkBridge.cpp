@@ -5,7 +5,7 @@
 #include "NeuralNetwork.h"
 #include "parsing.h"
 
-NeuralNetwork ann;
+BaseNeuralNetwork ann;
 extern "C" {
 
 // Initialize the neural network

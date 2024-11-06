@@ -3,14 +3,21 @@
 #include "parsing.h"
 
 int main() {
-	NeuralNetwork ann;
+	BaseNeuralNetwork ann;
 
 
 
-	std::vector<std::vector<double>> X = loadData("..\\input.txt");
-	std::vector<std::vector<double>> y = loadData("..\\output.txt");
+	std::vector<std::vector<double>> X = loadData("..\\inputs_.txt");
+	std::vector<std::vector<double>> y = loadData("..\\outputs_.txt");
+
+	double x[X.size()][X[0].size()];
+	std::cout << sizeof(x) << std::endl;
+
+
+	std::cout << y.size() << std::endl;
 	std::cout << X.size() << " : " << y.size() << std::endl;
 
+	sizeof(double) * y.size()  * y[0].size();
 
 	std::vector<std::vector<double>> X_train;
 	std::vector<std::vector<double>> X_test;

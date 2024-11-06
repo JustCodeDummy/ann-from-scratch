@@ -15,8 +15,8 @@ bool Neuron::operator==(const Neuron &other) const {
 
 }
 
-void Neuron::pushGradient(double gradient) {
-	this->previousGradients.push_back(gradient);
+void Neuron::pushGradient(double gradient_) {
+	this->previousGradients.push_back(gradient_);
 	if (this->previousGradients.size() > 100){
 		this->previousGradients.erase(this->previousGradients.begin());
 	}

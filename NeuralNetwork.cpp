@@ -4,11 +4,11 @@
 #include <iostream>
 
 
-void NeuralNetwork::addLayer(Layer* layer) {
+void BaseNeuralNetwork::addLayer(Layer* layer) {
 	this->layers.push_back(layer);
 }
 
-void NeuralNetwork::info() {
+void BaseNeuralNetwork::info() {
 	int c=0;
 	for (auto layer : this->layers){
 		c++;
@@ -24,7 +24,7 @@ void NeuralNetwork::info() {
 				w_string += ", ";
 			}
 			w_string += "]";
-
+			std::vector<int> v;
 			std::cout << "\tNeuron (" << d << "): {" << std::endl;
 			std::cout << "\t\toutput: " << n.output << std::endl;
 			std::cout << "\t\tWeights: " << w_string << std::endl;
@@ -35,7 +35,7 @@ void NeuralNetwork::info() {
 }
 
 // initialize weights
-void NeuralNetwork::compile() {
+void BaseNeuralNetwork::compile() {
 	if (this->isCompiled){
 		return;
 	}
@@ -129,7 +129,7 @@ int getWeightIndex(const std::vector<Neuron*>& pointerVec, Neuron* element) {
 	return -1;
 }
 
-Errors NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected) {
+Errors BaseNeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std::vector<double>> expected) {
 
 	 if (!this->isCompiled){
 		 return NOT_COMPILED;
@@ -159,7 +159,7 @@ Errors NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<s
 	 return OK;
 }
 
-Errors NeuralNetwork::propagate(std::vector<double> data) {
+Errors BaseNeuralNetwork::propagate(std::vector<double> data) {
 
 	try {
 		// set input values
@@ -205,7 +205,7 @@ Errors NeuralNetwork::propagate(std::vector<double> data) {
 	return OK;
 }
 
-Errors NeuralNetwork::backpropagate(std::vector<double>& expected) {
+Errors BaseNeuralNetwork::backpropagate(std::vector<double>& expected) {
 	// TODO ADAM
 	try {
 		int s = (int) this->layers.size() - 1;
@@ -247,7 +247,7 @@ Errors NeuralNetwork::backpropagate(std::vector<double>& expected) {
 	return OK;
 }
 
-Errors NeuralNetwork::updateWeights() {
+Errors BaseNeuralNetwork::updateWeights() {
 		// updating weights
 		int s = (int) this->layers.size() - 1;
 		try{
@@ -269,7 +269,7 @@ Errors NeuralNetwork::updateWeights() {
 
 }
 
-Errors NeuralNetwork::updateBias() {
+Errors BaseNeuralNetwork::updateBias() {
 	int s = (int) this->layers.size() - 1;
 	try{
 		while (s>0) {
@@ -287,7 +287,7 @@ Errors NeuralNetwork::updateBias() {
 
 }
 
-int NeuralNetwork::predict(const std::vector<double>& sample) {
+int BaseNeuralNetwork::predict(const std::vector<double>& sample) {
 
 	propagate(sample);
 
@@ -305,8 +305,8 @@ int NeuralNetwork::predict(const std::vector<double>& sample) {
 	return index;
 }
 
-void NeuralNetwork::predict(const std::vector<std::vector<double>> &inputs,
-							 const std::vector<std::vector<double>> &outputs) {
+void BaseNeuralNetwork::predict(const std::vector<std::vector<double>> &inputs,
+							const std::vector<std::vector<double>> &outputs) {
 	int correctly = 0;
 	for (int i=0; i<inputs.size(); i++){
 		if (correct(outputs[i]) == predict(inputs[i])){
@@ -318,7 +318,7 @@ void NeuralNetwork::predict(const std::vector<std::vector<double>> &inputs,
 
 }
 
-int NeuralNetwork::correct(const std::vector<double> &values) {
+int BaseNeuralNetwork::correct(const std::vector<double> &values) {
 		for (int i=0; i<values.size(); i++){
 			if (values[i] > 0.0){
 				return i;

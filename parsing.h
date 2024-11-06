@@ -6,7 +6,9 @@
 #include <filesystem>
 #include <random>
 #include <algorithm>
+#include <opencv2/opencv.hpp>
 
+using namespace cv;
 
 std::vector<std::string> split(const std::string& str, const std::string& delim);
 
@@ -20,5 +22,6 @@ void train_test_split(const std::vector<std::vector<double>>& X,
 					  std::vector<std::vector<double>>& y_test,
 					  double test_size);
 
+void transformConv2dGrayScale(int height, int weight, std::string &filepath, double ptr[]);
 
 
