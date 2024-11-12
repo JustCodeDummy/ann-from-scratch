@@ -80,7 +80,7 @@ void train_test_split(const std::vector<std::vector<double>>& X,
 	std::mt19937 g(rd());   // Seed the generator
 	std::shuffle(indices.begin(), indices.end(), g);
 
-	int test_set_size = static_cast<int>(X.size() * test_size);
+	int test_set_size = static_cast<int>((int) X.size() * test_size);
 
 	for (int i = 0; i < indices.size(); ++i) {
 		if (i < X.size() - test_set_size) {

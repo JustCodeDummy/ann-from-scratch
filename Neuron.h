@@ -15,9 +15,6 @@ enum ActivationFunction {
 
 class Neuron {
 
-
-
-
 	public:
 		ActivationFunction activation;
 		std::vector<double> weights, previousGradients, velocities;

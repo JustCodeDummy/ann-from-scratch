@@ -283,8 +283,6 @@ Errors BaseNeuralNetwork::updateBias() {
 	}
 
 	return OK;
-
-
 }
 
 int BaseNeuralNetwork::predict(const std::vector<double>& sample) {
@@ -300,8 +298,6 @@ int BaseNeuralNetwork::predict(const std::vector<double>& sample) {
 			max = outputs[i].output;
 		}
 	}
-
-
 	return index;
 }
 
@@ -329,5 +325,23 @@ int BaseNeuralNetwork::correct(const std::vector<double> &values) {
 }
 
 
+void ConvolutionNeuralNetwork::compile() {
+	if (this->isCompiled){
+		return;
+	}
 
+	for (int i = 1; i<this->layers.size(); i++){
+		this->layers[i-1]->connectNext(this->layers[i], this->kernelSize);
+	}
 
+	this->isCompiled = true;
+}
+
+void ConvolutionNeuralNetwork::propagate2d() {
+	int rows = (int) layers[1]->neurons.size();
+	int cols = (int) layers[1]->neurons[0].size();
+
+	for (int layer = 1; layer < this->layers.size(); layer++){
+		layers[layer]->update();
+	}
+}
