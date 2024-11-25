@@ -27,6 +27,8 @@ add_executable(NeuralNetwork main.cpp
         parsing.h
         NeuralNetworkBridge.cpp
         NeuralNetworkBridge.cpp
+        ConvolutionLayer.cpp
+        Kernel.cpp
 
 )
 
