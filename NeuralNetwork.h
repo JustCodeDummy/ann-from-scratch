@@ -67,14 +67,9 @@ class BaseNeuralNetwork: public NeuralNetwork{
 };
 
 class ConvolutionNeuralNetwork: public NeuralNetwork{
-	private:
-		std::vector<ConvolutionLayer*> layers;
-		std::vector<std::vector<double>> kernel;
-		int kernelSize;
-		void propagate2d();
 
 	public:
 		void compile() override;
-		explicit ConvolutionNeuralNetwork(int kernelSize);
+		explicit ConvolutionNeuralNetwork();
 
 };
