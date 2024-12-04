@@ -29,6 +29,8 @@ class Kernel {
 
 		Kernel operator *(double scalar);
 
+		std::vector<std::vector<double>> operator * (Kernel matrix);
+
 		void operator -=(Kernel& matrix);
 
 		void operator+=(Kernel& matrix);

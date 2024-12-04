@@ -29,6 +29,8 @@ add_executable(NeuralNetwork main.cpp
         NeuralNetworkBridge.cpp
         ConvolutionLayer.cpp
         Kernel.cpp
+        ConvolutionalNeuralNetwork.cpp
+        ConvolutionalNeuralNetwork.h
 
 )
 

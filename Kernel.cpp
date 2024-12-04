@@ -59,4 +59,16 @@ void Kernel::operator+=(Kernel& matrix){
 	}
 }
 
+std::vector<std::vector<double>> Kernel::operator*(Kernel matrix) {
+	size_t kS = this->kernel[0].size();
+	std::vector<std::vector<double>> product(kS, std::vector<double>(kS, 0));
+	for (int i = 0; i<kS; i++){
+		for (int j = 0; j<kS; j++){
+			product[i][j] = this->kernel[i][j] * matrix[i][j];
+		}
+	}
+
+	return product;
+}
+
 

@@ -12,7 +12,7 @@ extern "C" {
 JNIEXPORT void JNICALL Java_NeuralNetworkBridge_initialize(JNIEnv* env, jobject obj) {
 	try {
 
-		// Add layers to the neural network
+		// Add convolutionalLayers to the neural network
 		ann.addLayer(new DenseLayer(32, SIGMOID, 0.1));
 		ann.addLayer(new DenseLayer(64, SIGMOID, 0.1));
 		ann.addLayer(new DenseLayer(32, SIGMOID, 0.1));

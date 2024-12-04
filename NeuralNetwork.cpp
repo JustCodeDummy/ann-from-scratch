@@ -205,8 +205,9 @@ Errors BaseNeuralNetwork::propagate(std::vector<double> data) {
 	return OK;
 }
 
+
+
 Errors BaseNeuralNetwork::backpropagate(std::vector<double>& expected) {
-	// TODO ADAM
 	try {
 		int s = (int) this->layers.size() - 1;
 		while (s > 0) {
@@ -321,5 +322,23 @@ int BaseNeuralNetwork::correct(const std::vector<double> &values) {
 			}
 		}
 		return -1;
+
+}
+
+BaseNeuralNetwork::BaseNeuralNetwork(std::vector<Layer*>& convLayers) {
+	this->isCompiled = true;
+	this->layers = convLayers;
+
+}
+
+Errors BaseNeuralNetwork::propagateConvolution() {
+
+	std::vector<double> data(this->layers[0]->neurons.size(), 0);
+	for (int i = 0; i<data.size(); i++){
+		data[i] = this->layers[0]->neurons[i].output;
+	}
+	Errors statusCode = this->propagate(data);
+
+	return statusCode;
 
 }

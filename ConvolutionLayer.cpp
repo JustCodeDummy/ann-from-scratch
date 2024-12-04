@@ -1,4 +1,5 @@
 #include "ConvolutionLayer.h"
+#include "NeuralNetwork.h"
 
 
 Conv2dLayer::Conv2dLayer(int height, int width, ActivationFunction function, double bias, int kernelSize, std::function<double(int,int)>&initializer){
@@ -37,7 +38,10 @@ Conv2dLayer::Conv2dLayer(int height, int width, ActivationFunction function, dou
 				this->neurons[i][j] = Neuron();
 			}
 		}
+
 	}
+
+
 }
 
 double Conv2dLayer::convolution(const std::vector<std::vector<double>>& input,
@@ -56,39 +60,6 @@ double Conv2dLayer::convolution(const std::vector<std::vector<double>>& input,
 	return summation;
 }
 
-void Conv2dLayer::propagate() {
-
-	int p_rows = (int) this->neurons.size();
-	int p_cols = (int) this->neurons[0].size();
-
-	int outRows = (p_rows - this->kernelSize) / stride + 1;
-	int outCols = (p_cols - this->kernelSize) / stride + 1;
-	for (int idx = 0; idx<this->kernels.size(); idx++){
-		std::vector<std::vector<double>> convolved(outRows, std::vector<double>(outCols, 0.0));
-		for (int row=0; row < outRows; row++){
-			for (int col=0; col < outCols; col++){
-				int s_row = row * this->stride;
-				int s_col = col * this->stride;
-				auto doubles = extractOutputs(griddify(this->neurons_[idx][s_row][s_col].inputs, (int) kernels[idx].size()));
-				convolved[row][col] = convolution(doubles, s_row, s_col, idx);
-			}
-		}
-		this->featureMaps[idx] = convolved;
-	}
-
-	for (int map = 0; map < kernels.size(); map++){
-		for (int row = 0; row < outRows; row++) {
-			for (int col = 0; col < outCols; col++) {
-				int neuronRow = row * this->stride + this->padding;
-				int neuronCol = col * this->stride + this->padding;
-				if (neuronRow < this->neurons.size() && neuronCol < this->neurons[0].size()) {
-					this->neurons_[map][neuronRow][neuronCol].output = featureMaps[map][row][col];
-				}
-			}
-		}
-	}
-}
-
 std::vector<std::vector<double>> Conv2dLayer::extractOutputs(const std::vector<std::vector<Neuron*>> &inputs) {
 	int rows = (int) inputs.size();
 	int cols = (int) inputs[0].size();
@@ -100,6 +71,7 @@ std::vector<std::vector<double>> Conv2dLayer::extractOutputs(const std::vector<s
 	}
 	return outputs;
 }
+
 std::vector<std::vector<Neuron *>> Conv2dLayer::griddify(std::vector<Neuron*> &inputs, int kSize) {
 
 	int n_row = (int) this->kernels[kSize].size();
@@ -129,6 +101,7 @@ void Conv2dLayer::connectNext(ConvolutionLayer *layer, int kernelSize) {
 					int inputCol = startCol + col;
 					int inputRow = startRow + row;
 					if (inputCol >= 0 && inputCol < this->width && inputRow >= 0 && inputRow < this->height) {
+
 						layer->neurons[col_n][row_n].inputs.push_back(&this->neurons[inputCol][inputRow]);
 					}
 				}
@@ -175,18 +148,84 @@ std::vector<Kernel> Conv2dLayer::kernelize(int fIdx) {
 	return kernels_;
 }
 
-void Conv2dLayer::backpropagate() {
+
+void Conv2dLayer::extractNextGradients(int kIdx) {
+	this->nextGradients[kIdx] = this->nextLayer->gradients[kIdx];
+}
+
+void Conv2dLayer::updateWeights() {
+	this->nextGradients = this->nextLayer->gradients;
+
 	for (int kIdx = 0; kIdx < this->kernels.size(); kIdx++){
 		auto kernels_ = kernelize(kIdx);
 		auto s = (size_t) std::sqrt((size_t)kernels_.size());
-		Kernel gradients(kernelSize);
+		Kernel gradients_(kernelSize);
+		for (int i = 0; i<s; i++){
+			for (int j = 0; j<s; j++){
+				for (int k = 0; k<s; k++) {
+					auto inputs = extractOutputs(griddify(this->neurons_[i][j][k].inputs, s));
+					// TODO move this to ConvolutionNeuralNetwork.cpp, it doesn't make sense here
+				}
+			}
+		};
+
+
 		for (int row = 0; row < s; row++){
 			for (size_t col = 0; col < s; col++){
 				Kernel t = kernels_[row * kernelSize + col] * featureMaps[kIdx][row][col];
-				gradients += t;
+				gradients_ += t;
 			}
 		}
-		Kernel k= gradients * this->learningRate;
+		Kernel k= gradients_ * this->learningRate;
 		this->kernels[kIdx] -= k;
 	}
+}
+
+
+
+FlattenLayer::FlattenLayer(Conv2dLayer *input) {
+	this->inputLayer = input;
+	this->activation = LINEAR;
+	flatten();
+}
+
+void FlattenLayer::flatten() {
+	int kSize = (int) inputLayer->featureMaps[0].size();
+	for (int map = 0; map < inputLayer->featureMaps.size(); map++){
+		for (int row= 0; row < kSize; row++){
+			for (int col = 0; col < kSize; col++){
+				Neuron n = Neuron(LINEAR, 0.0, map * row + col);
+				n.output = inputLayer->featureMaps[map][row][col];
+				neurons.push_back(n);
+			}
+		}
+	}
+}
+
+void FlattenLayer::connectNext(Layer* nextLayer_) {
+	for (auto &neuron : nextLayer_->neurons){
+		for (auto &curr_neuron : this->neurons){
+			neuron.inputs.emplace_back(&(curr_neuron));
+		}
+	}
+	for (auto & n : neurons){
+		for (int _ = 0; _<neurons[0].inputs.size(); _++){
+			n.weights.push_back(NeuralNetwork::xavier_uniform((long) n.inputs.size(), (long) neurons.size()));
+			n.velocities.push_back(0.0);
+		}
+	}
+}
+
+
+
+PoolingLayer::PoolingLayer(int todo) {
+	this->convolutionType = POOLING;
+}
+
+std::vector<double> FlattenLayer::getValues() {
+	std::vector<double> data(this->neurons.size(), 0);
+	for (int i = 0; i<this->neurons.size(); i++){
+		data[i] = this->neurons[i].output;
+	}
+	return data;
 }

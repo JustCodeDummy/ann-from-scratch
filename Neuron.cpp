@@ -22,4 +22,17 @@ void Neuron::pushGradient(double gradient_) {
 	}
 }
 
+std::vector<std::vector<double>> Neuron::to2D(int kSize) {
+
+	auto inputRegion = std::vector<std::vector<double>>(kSize, std::vector<double>(kSize, 0));
+
+	for (int i; i<kSize; i++){
+		for (int j =0; j<kSize; j++){
+			inputRegion[i][j] = this->inputs[j + i*kSize]->output;
+		}
+	}
+}
+
+
+
 

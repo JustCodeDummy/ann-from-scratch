@@ -4,10 +4,12 @@
 #include <vector>
 #include <functional>
 
+
+
 class Layer {
 	public:
 		std::vector<Neuron> neurons;
-		void connectNext(Layer* nextLayer);
+		virtual void connectNext(Layer* nextLayer) = 0;
 		virtual ~Layer() = default;
 		ActivationFunction function;
 		int id_=0;

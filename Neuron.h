@@ -15,6 +15,7 @@ enum ActivationFunction {
 
 class Neuron {
 
+private:
 	public:
 		ActivationFunction activation;
 		std::vector<double> weights, previousGradients, velocities;
@@ -30,4 +31,6 @@ class Neuron {
 		bool operator==(const Neuron &other) const;
 
 		Neuron() : activation(SIGMOID), bias(0.0), id_(-1), output(0) {};
+
+		std::vector<std::vector<double>> to2D(int ksize);
 };
